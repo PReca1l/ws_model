@@ -72,4 +72,4 @@ class Inference:
             xywh = (xyxy2xywh(torch.tensor(xyxy).view(1, 4)) / gn).view(-1).tolist()  # normalized xywh
             boxes.append([*xywh, cls.item()])
 
-        return source.tobytes(), get_report([self.names[int(cls)] for cls in prediction[:, -1]])
+        return source, get_report([self.names[int(cls)] for cls in prediction[:, -1]])
