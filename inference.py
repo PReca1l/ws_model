@@ -66,4 +66,4 @@ class Inference:
             label = f'{self.names[int(cls)]}'
             plot_one_box(xyxy, source, label=label, color=self.colors[int(cls)], line_thickness=1)
 
-        return source.tobytes(), get_report([self.names[int(cls)] for cls in prediction[:, -1]]), prediction
+        return source.tobytes(), get_report([self.names[int(cls)] for cls in prediction[:, -1]])
