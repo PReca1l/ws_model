@@ -8,6 +8,7 @@ import torch
 from general import check_img_size, non_max_suppression, scale_coords, get_report, plot_one_box
 from models.experimental import attempt_load
 from utils.datasets import letterbox
+from utils.general import xyxy2xywh
 
 
 class Inference:
@@ -45,7 +46,6 @@ class Inference:
         old_img_w = old_img_h = self.image_size
         old_img_b = 1
 
-
         # Warmup
         if self.device.type != 'cpu' and (
                 old_img_b != img.shape[0] or old_img_h != img.shape[2] or old_img_w != img.shape[3]):
@@ -58,12 +58,18 @@ class Inference:
         prediction = non_max_suppression(prediction, )[0]
 
         if not len(prediction):
-            return source, get_report(prediction)
+            return source, get_report([])
 
         prediction[:, :4] = scale_coords(img.shape[2:], prediction[:, :4], source.shape).round()
+
+        boxes = []
 
         for *xyxy, conf, cls in reversed(prediction):
             label = f'{self.names[int(cls)]}'
             plot_one_box(xyxy, source, label=label, color=self.colors[int(cls)], line_thickness=1)
+
+            gn = torch.tensor(source.shape)[[1, 0, 1, 0]]  # normalization gain whwh
+            xywh = (xyxy2xywh(torch.tensor(xyxy).view(1, 4)) / gn).view(-1).tolist()  # normalized xywh
+            boxes.append([*xywh, cls.item()])
 
         return source.tobytes(), get_report([self.names[int(cls)] for cls in prediction[:, -1]])
