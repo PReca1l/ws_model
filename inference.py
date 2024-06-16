@@ -1,11 +1,9 @@
-import io
 import random
 from copy import deepcopy
 
 import cv2
 import numpy as np
 import torch
-from PIL import Image
 
 from general import check_img_size, non_max_suppression, scale_coords, get_report, plot_one_box
 from models.experimental import attempt_load
@@ -60,10 +58,10 @@ class Inference:
         prediction = non_max_suppression(prediction, 0.496)[0]
 
         if not len(prediction):
-            result = io.BytesIO()
-            Image.fromarray(source).save(result, format='JPEG')
-            result = result.getvalue()
-            return result, get_report([])
+            #result = io.BytesIO()
+            #Image.fromarray(source).save(result, format='JPEG')
+            #result = result.getvalue()
+            return source, get_report([])
 
         prediction[:, :4] = scale_coords(img.shape[2:], prediction[:, :4], source.shape).round()
 
@@ -77,7 +75,7 @@ class Inference:
             xywh = (xyxy2xywh(torch.tensor(xyxy).view(1, 4)) / gn).view(-1).tolist()  # normalized xywh
             boxes.append([*xywh, cls.item()])
 
-        result = io.BytesIO()
-        Image.fromarray(source).save(result, format='JPEG')
-        result = result.getvalue()
-        return result, get_report([self.names[int(cls)] for cls in prediction[:, -1]])
+        #result = io.BytesIO()
+        #Image.fromarray(source).save(result, format='JPEG')
+        #result = result.getvalue()
+        return source, get_report([self.names[int(cls)] for cls in prediction[:, -1]])
