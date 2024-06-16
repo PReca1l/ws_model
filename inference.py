@@ -57,11 +57,11 @@ class Inference:
         with torch.no_grad():
             prediction = self.model(img)[0]
 
-        prediction = non_max_suppression(prediction, )[0]
+        prediction = non_max_suppression(prediction, 0.496)[0]
 
         if not len(prediction):
             result = io.BytesIO()
-            Image.fromarray(source).save(result, format='JPG')
+            Image.fromarray(source).save(result, format='JPEG')
             result = result.getvalue()
             return result, get_report([])
 
